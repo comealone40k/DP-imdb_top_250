@@ -51,7 +51,7 @@ def all_page_link(p_start_url: str, p_log_level: str = 'INFO') -> list:
     return all_urls
 
 
-def extract_imdb_data(p_content: str, p_log_level: str = 'INFO') -> list:
+def extract_imdb_data(p_content: bytes, p_log_level: str = 'INFO') -> list:
     """
     Extracts data from IMDB page content: "name", "release_date", "rating", "votes", "oscars"
     :param p_content: str
@@ -155,7 +155,7 @@ def extract_imdb_top_250_data(p_log_level: str = 'INFO') -> pd.DataFrame:
 
         logger.debug(f'Extracting data from URL:{l_current_link}')
 
-        l_content = str(requests.get(l_current_link).content)  # Extract content from movie url as string
+        l_content = requests.get(l_current_link).content  # Extract content from movie url as string
 
         # Extract the IMDB data points
         imdb_top_250_data.append(extract_imdb_data(p_content=l_content, p_log_level=p_log_level))

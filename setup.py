@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='DP-imdb_top_250',
-    version='',
+    version='0.7',
     packages=[''],
     url='',
     license='',
