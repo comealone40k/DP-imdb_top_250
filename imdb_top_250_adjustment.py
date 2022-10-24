@@ -2,7 +2,7 @@ import csv
 from datetime import datetime
 import pandas as pd
 import argparse
-import scraper
+import imdb_scraper
 import os
 import logging
 
@@ -91,7 +91,7 @@ def write_imdb_data_to_csv(p_df: pd.DataFrame,
 def extract_and_adjust(p_log_level: str = 'INFO'):
 
     # Get IMDB top 250 movie data
-    df = scraper.extract_imdb_top_250_data(p_log_level=p_log_level)
+    df = imdb_scraper.extract_imdb_top_250_data(p_log_level=p_log_level)
 
     # Adjust rating and sort DataFrame, round ratings to 1 decimal
     sorted_df = adjust_dataframe(p_df=df, p_log_level=p_log_level).round(1)

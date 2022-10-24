@@ -1,4 +1,4 @@
-import scraper
+import imdb_scraper
 import imdb_top_250_adjustment
 import unittest
 import pandas as pd
@@ -20,7 +20,7 @@ class TestIMDBScraper(unittest.TestCase):
             print(f'Movie JSON: {l_json}')
             print(f'Expected results: {l_test_results}')
 
-            l_parse_result = scraper.extract_imdb_data_from_json(p_json=l_json, p_log_level='DEBUG')
+            l_parse_result = imdb_scraper.extract_imdb_data_from_json(p_json=l_json, p_log_level='DEBUG')
 
             print(f'Parse results: {l_parse_result}')
 
@@ -41,7 +41,7 @@ class TestIMDBScraper(unittest.TestCase):
 
             l_soup = BeautifulSoup(l_bdata, 'html.parser')
 
-            number_of_oscars = scraper.extract_number_of_oscars(p_soup=l_soup)
+            number_of_oscars = imdb_scraper.extract_number_of_oscars(p_soup=l_soup)
 
             print(f'File name: {file_name} Oscars extracted number:{number_of_oscars}')
 
@@ -55,9 +55,9 @@ class TestIMDBScraper(unittest.TestCase):
 
             print(f'File name: {file_name} Test data:{l_test_data}')
 
-            l_json = scraper.extract_imdb_json_from_content(p_soup=l_soup)
+            l_json = imdb_scraper.extract_imdb_json_from_content(p_soup=l_soup)
 
-            l_extracted_fields = scraper.extract_imdb_data_from_json(p_json=l_json)
+            l_extracted_fields = imdb_scraper.extract_imdb_data_from_json(p_json=l_json)
 
             print(f'File name: {file_name} Extracted fields:{l_extracted_fields}')
 

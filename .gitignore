@@ -14,3 +14,4 @@ Notebooks/.ipynb_checkpoints/*
 Notebooks/imdb_top_250_adjusted_*.csv
 imdb_top_250_adjusted_*.csv
 title_tt*
+/content_files/
