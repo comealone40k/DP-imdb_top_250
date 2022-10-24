@@ -38,4 +38,5 @@ jobs:
     - name: Test with pytest
       run: |
         cd $GITHUB_WORKSPACE
+        ls -la
         python -m unittest Tests/unit_tests.py
