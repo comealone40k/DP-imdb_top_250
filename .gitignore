@@ -8,6 +8,9 @@
 .ipynb_checkpoints/Prototype-checkpoint.ipynb
 .ipynb_checkpoints/Untitled-checkpoint.ipynb
 __pycache__/scraper.cpython-310.pyc
-Notebooks/Untitled.ipynb
+Notebooks/Untitled*
 *.pyc
-Notebooks/.ipynb_checkpoints/Untitled-checkpoint.ipynb
+Notebooks/.ipynb_checkpoints/*
+Notebooks/imdb_top_250_adjusted_*.csv
+imdb_top_250_adjusted_*.csv
+title_tt*
