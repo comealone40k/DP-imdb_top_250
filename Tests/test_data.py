@@ -6,11 +6,11 @@ test_data = {
                     {"movie_json": """{"name": "Revenge of the Cactus 5", "aggregateRating": {"@type": "AggregateRating", "ratingCount": 95613, "bestRating": 10, "worstRating": 1, "ratingValue": 3.2}, "datePublished": "2015-12-24"}""", "expected_result_list": ["Revenge of the Cactus 5", "2015-12-24", 3.2, 95613]}
                     ],
 
-    'movie_byte_files': [{'file_name': 'Tests/title_tt001.txt', 'title': 'The Kid', 'date_published': '1924-08-22', 'rating': 8.3, 'votes': 126562, 'oscars': 0},
-                         {'file_name': 'Tests/title_tt002.txt', 'title': 'The Gold Rush', 'date_published': '1926-03-04', 'rating': 8.2, 'votes': 111544, 'oscars': 0},
-                         {'file_name': 'Tests/title_tt003.txt', 'title': 'Metropolis', 'date_published': '1927-02-17', 'rating': 8.3, 'votes': 174351, 'oscars': 0},
-                         {'file_name': 'Tests/title_tt004.txt', 'title': 'The General', 'date_published': 'N/A', 'rating': 8.2, 'votes': 91609, 'oscars': 0},
-                         {'file_name': 'Tests/title_tt005.txt', 'title': 'The Lord of the Rings: The Return of the King', 'date_published': '2004-01-08', 'rating': 9, 'votes': 1829070, 'oscars': 11}
+    'movie_byte_files': [{'file_name': 'Tests/title001.txt', 'title': 'The Kid', 'date_published': '1924-08-22', 'rating': 8.3, 'votes': 126562, 'oscars': 0},
+                         {'file_name': 'Tests/title002.txt', 'title': 'The Gold Rush', 'date_published': '1926-03-04', 'rating': 8.2, 'votes': 111544, 'oscars': 0},
+                         {'file_name': 'Tests/title003.txt', 'title': 'Metropolis', 'date_published': '1927-02-17', 'rating': 8.3, 'votes': 174351, 'oscars': 0},
+                         {'file_name': 'Tests/title004.txt', 'title': 'The General', 'date_published': 'N/A', 'rating': 8.2, 'votes': 91609, 'oscars': 0},
+                         {'file_name': 'Tests/title005.txt', 'title': 'The Lord of the Rings: The Return of the King', 'date_published': '2004-01-08', 'rating': 9, 'votes': 1829070, 'oscars': 11}
                          ],
 
     'oscars_adjustments': [{'oscars': 0, 'adjustment': 0},
