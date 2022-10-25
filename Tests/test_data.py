@@ -37,18 +37,18 @@ test_data = {
                               ["Revenge of the Cactus 5", "2015-12-24", 3.2, 95613, 12]
                               ],
 
-    'dataframe_adjustments_results': [["Revenge of the Cactus 1", "N/A", 9, 50000, 0, 8.8],
-                                      ["Revenge of the Cactus 2", "2001-01-01", 8.5, 150000, 2, 8.7],
-                                      ["Revenge of the Cactus 3", "2003-04-24", 7.2, 200000, 5, 7.7],
-                                      ["Revenge of the Cactus 4", "2007-10-13", 5.7, 250000, 8, 6.7],
-                                      ["Revenge of the Cactus 5", "2015-12-24", 3.2, 95613, 12, 4.6]
+    'dataframe_adjustments_results': [[1, "Revenge of the Cactus 1", "N/A", 9, 50000, 0, 8.8],
+                                      [2, "Revenge of the Cactus 2", "2001-01-01", 8.5, 150000, 2, 8.7],
+                                      [3, "Revenge of the Cactus 3", "2003-04-24", 7.2, 200000, 5, 7.7],
+                                      [4, "Revenge of the Cactus 4", "2007-10-13", 5.7, 250000, 8, 6.7],
+                                      [5, "Revenge of the Cactus 5", "2015-12-24", 3.2, 95613, 12, 4.6]
                                       ],
 
-    'dataframe_to_csv': [["Revenge of the Cactus 1", "N/A", 9, 50000, 0, 8.8],
-                         ["Revenge of the Cactus 2", "2001-01-01", 8.5, 150000, 2, 8.7],
-                         ["Revenge of the Cactus 3", "2003-04-24", 7.2, 200000, 5, 7.7],
-                         ["Revenge of the Cactus 4", "2007-10-13", 5.7, 250000, 8, 6.7],
-                         ["Revenge of the Cactus 5", "2015-12-24", 3.2, 95613, 12, 4.6]
+    'dataframe_to_csv': [[1, "Revenge of the Cactus 1", "N/A", 9, 50000, 0, 8.8],
+                         [2, "Revenge of the Cactus 2", "2001-01-01", 8.5, 150000, 2, 8.7],
+                         [3, "Revenge of the Cactus 3", "2003-04-24", 7.2, 200000, 5, 7.7],
+                         [4, "Revenge of the Cactus 4", "2007-10-13", 5.7, 250000, 8, 6.7],
+                         [5, "Revenge of the Cactus 5", "2015-12-24", 3.2, 95613, 12, 4.6]
                          ]
 }
 

@@ -3,51 +3,12 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 import html
-from tqdm import tqdm
 import re
 import json
 import logging
 import config as c
 
 logging.basicConfig(format=c.log_format)
-
-
-def all_page_link(p_start_url: str, p_log_level: str = 'INFO') -> list:
-    """
-    Parses through the pages of the given url and returns them in a list.
-    :param p_start_url: str
-        Base URL to start searching on.
-    :param p_log_level: str
-        Log level to logging
-    :return: list
-        list of pages for url
-    """
-    # Initiate logging for this function, pad function name to 30 characters
-    logger = logging.getLogger(__name__.ljust(30, ' '))
-    logger.setLevel(p_log_level)
-
-    all_urls = []  # Container for acquired urls
-    url = p_start_url  # Base of search
-
-    logger.info(f'Start URL: {url}')
-
-    while url is not None:  # Loop through the whole page until there is none
-        all_urls.append(url)  # Add current url to container
-        soup = BeautifulSoup(requests.get(url).text, "html.parser")  # Parse url content to find next page
-        next_links = soup.find_all(class_='flat-button lister-page-next next-page')  # Extracts the next page link.
-        if len(next_links) == 0:  # If there is no next page, it returns 0.
-            url = None  # Ends the loop
-            logger.debug('No more pages')
-
-        else:
-            next_page = "https://www.imdb.com" + next_links[0].get('href')  # Calculates next page link
-            url = next_page
-            logger.debug(f'Next page: {url}')
-
-    logger.info('Finished')
-    logger.debug(f'URLs:\n{all_urls}')
-
-    return all_urls
 
 
 def extract_number_of_oscars(p_soup: BeautifulSoup, p_log_level: str = 'INFO') -> int:
@@ -80,6 +41,36 @@ def extract_number_of_oscars(p_soup: BeautifulSoup, p_log_level: str = 'INFO') -
             logger.debug(f'Found Oscars: {num_of_oscars} in: {i.text}')
 
     return num_of_oscars
+
+
+def extract_number_of_reviews(p_content: bytes, p_log_level: str = 'INFO') -> int:
+    """
+    Extracts data from IMDB page content: "num_of_reviews"
+    :param p_content: str
+        Content of the page to extract from ( Html response )
+    :param p_log_level: str
+        Log level to logging
+    :return: int
+        Number of reviews for movie
+    """
+
+    # Initiate logging for this function, pad function name to 30 characters
+    logger = logging.getLogger(__name__.ljust(30, ' '))
+    logger.setLevel(p_log_level)
+
+    logger.info('Started')
+
+    logger.debug(f'Current content:\n{p_content}')
+
+    l_review_soup = BeautifulSoup(p_content, 'html.parser')
+
+    l_reviews_text = l_review_soup.find("div", attrs={"class": "lister"}).find('div').find('div').find('span').text
+
+    logger.debug(f'Review data found:\n{l_reviews_text}')
+
+    l_num_of_reviews = int(re.findall(r'\d+', l_reviews_text.replace(',', ''))[0])
+
+    return l_num_of_reviews
 
 
 def extract_imdb_json_from_content(p_soup: BeautifulSoup, p_log_level: str = 'INFO') -> dict:
@@ -208,34 +199,27 @@ def extract_imdb_top_250_data(p_log_level: str = 'INFO') -> pd.DataFrame:
 
     logger.debug(f'Starting on URL: {l_top_250_url}')
 
-    t = tqdm(all_page_link(p_start_url=l_top_250_url, p_log_level=p_log_level))  # Parse base url
+    soup = BeautifulSoup(requests.get(l_top_250_url).text, "html.parser")  # Parse top 250 url
 
-    links_set = set()
-    for i in t:
-        soup = BeautifulSoup(requests.get(i).text, "html.parser")  # Parse current HTML page
-        links = [a['href'] for a in soup.select('a[href]')]  # Find all links in parsed HTML page
-        # Find movie links and deduplicate the resulting link set
-        current_link_set = set(list(filter(lambda link: 'title/tt' in link, links)))
+    l_title_list_soup = soup.find('script', type="application/ld+json").text  # Find movie link list in script tag
 
-        logger.debug(f'Adding links:\n{current_link_set}')
+    l_title_json = json.loads(l_title_list_soup)  # Parse link list into JSON object
 
-        links_set = links_set.union(current_link_set)  # Add found links to link set
+    l_title_list = l_title_json['about']['itemListElement']  # Get links from JSON
 
-    logger.debug(f'Current set of links:\n{links_set}')
+    filtered = list(filter(lambda pos: int(pos['position']) <= 20, l_title_list))  # Filter on position ( 20 or less )
+
+    link_list = [x['url'] for x in filtered]  # Extract url from link list
 
     imdb_top_250_data = []  # List to gather top 250 movie data into
 
     # Looping though movie links
-    for link in links_set:
+    for link in link_list:
         l_current_link = f'https://www.imdb.com{link}'  # Calculate current movie link
 
         logger.debug(f'Extracting data from URL:{l_current_link}')
 
         l_content = requests.get(l_current_link).content  # Extract content from movie url as bytes
-
-        with open(f"{link.strip('/').replace('/','_')}.txt", "wb") as binary_file:
-            # Write bytes to file
-            binary_file.write(l_content)
 
         logger.debug(f'Extracting bytes content from URL:{l_content}')
 

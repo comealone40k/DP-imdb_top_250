@@ -85,19 +85,15 @@ class TestIMDBScraper(unittest.TestCase):
 
         l_source_index = ["name", "release_date", "rating", "votes", "oscars"]
 
-        l_expected_index = ["name", "release_date", "rating", "votes", "oscars", "adjusted_rating"]
+        l_expected_index = ["rank", "name", "release_date", "rating", "votes", "oscars", "adjusted_rating"]
 
         l_expected_df = pd.DataFrame(test_data.test_data['dataframe_adjustments_results'], columns=l_expected_index)
 
         l_expected_df.index += 1
 
-        print(f'Expected dataframe:\n{l_expected_df}')
-
         l_df = pd.DataFrame(test_data.test_data['dataframe_adjustments'], columns=l_source_index)
 
         l_result_df = imdb_top_250_adjustment.adjust_dataframe(p_df=l_df)
-
-        print(f'Result dataframe:\n{l_result_df}')
 
         pd.testing.assert_frame_equal(l_expected_df, l_result_df)
 
@@ -107,18 +103,14 @@ class TestIMDBScraper(unittest.TestCase):
         if os.path.exists(l_file_name):
             os.remove(l_file_name)
 
-        l_expected_index = ["name", "release_date", "rating", "votes", "oscars", "adjusted_rating"]
+        l_expected_index = ["rank", "name", "release_date", "rating", "votes", "oscars", "adjusted_rating"]
 
         l_expected_df = pd.DataFrame(test_data.test_data['dataframe_to_csv'], columns=l_expected_index)
 
         imdb_top_250_adjustment.write_imdb_data_to_csv(p_df=l_expected_df,
                                                        p_file=l_file_name)
 
-        l_read_df = pd.read_csv(l_file_name, sep=';', na_filter=False, keep_default_na=False)
-
-        print(f'Original DataFrame:\n{l_expected_df}')
-
-        print(f'Read DataFrame:\n{l_read_df}')
+        l_read_df = pd.read_csv(l_file_name, sep=';', keep_default_na=False)
 
         pd.testing.assert_frame_equal(l_expected_df, l_read_df)
 

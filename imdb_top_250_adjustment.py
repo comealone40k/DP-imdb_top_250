@@ -33,23 +33,27 @@ def adjust_dataframe(p_df: pd.DataFrame, p_log_level: str = 'INFO'):
     l_max_votes = p_df.sort_values('rating', ascending=False).head(20).max(axis=0)['votes']
 
     # Adjust rating - 0.1 penalty for each 100k deviation from l_max_votes and create new column with adjusted value
-    p_df['adjusted_rating1'] = p_df['rating'] + ((l_max_votes - p_df['votes']) // 100000 * -0.1)
+    p_df['review_penalty'] = ((l_max_votes - p_df['votes']) // 100000 * -0.1)
 
     # Adjust rating - apply oscars adjustment and create new column
-    p_df['adjusted_rating2'] = [oscars_adjustment(x) for x in p_df['oscars']]
+    p_df['oscars_adjustment'] = [oscars_adjustment(x) for x in p_df['oscars']]
 
     # Calculate final adjusted rating
-    p_df['adjusted_rating'] = round(p_df['adjusted_rating1'] + p_df['adjusted_rating2'], 1)
+    p_df['adjusted_rating'] = round(p_df['rating'] + p_df['review_penalty'] + p_df['oscars_adjustment'], 1)
 
     # Drop adjustment column - no need for them now
-    l_df = p_df.drop("adjusted_rating1", axis='columns')
-    l_df = l_df.drop("adjusted_rating2", axis='columns')
+    l_df = p_df.drop("oscars_adjustment", axis='columns')
+    l_df = l_df.drop("review_penalty", axis='columns')
 
     # Sort movie list based on adjusted ratings, get top 20, reset index on DataFrame
     sorted_df = l_df.sort_values('adjusted_rating', ascending=False).head(20).reindex().reset_index(drop=True)
 
     # New index starts at 1
     sorted_df.index += 1
+
+    sorted_df.insert(loc=0, column='rank', value=sorted_df.index)
+
+    sorted_df['rank'] = sorted_df.index
 
     return sorted_df
 
