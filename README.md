@@ -1,6 +1,6 @@
 # DP-imdb_top_250
 
-## [Requirements](file:///requirements.txt)
+## [Requirements](/requirements.txt)
 
 ## Running
 
@@ -20,4 +20,4 @@ imdb_top_250_adjusted_%Y%m%d_%H%M%S.csv
 
 Written in Jupyter Notebook
 
-[Prototype with explanation](file:///Notebooks/Prototype.ipynb)
+[Prototype with explanation](/Notebooks/Prototype.ipynb)
