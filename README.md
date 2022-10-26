@@ -76,3 +76,17 @@ imdb_top_250_adjusted_%Y%m%d_%H%M%S.csv
 ## Prototype written in Jupyter Notebook
 
 [Prototype with explanation](/Notebooks/Prototype.ipynb)
+
+## Tests
+
+[Unittests](/Tests/unit_tests.py) run by [Github Action](/.github/workflows/python-package.yml)
+
+[Actions](https://github.com/comealone40k/DP-imdb_top_250/actions)
+
+## TODO
+
+* More unit tests with error handling tests
+
+* Test with self-contained web pages
+
+* Adding file path parameter
