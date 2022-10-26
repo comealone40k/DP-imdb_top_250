@@ -51,7 +51,7 @@ The Oscars should mean something, shouldn’t they? Here are the rewards for the
 ### **Evaluation Criteria**
 
 - Programming best-practices.
-- Implementation of *Scraper*, *Review Penalizer* & *Oscar Calculator.*
+- Implementation of [*Scraper*](https://github.com/comealone40k/DP-imdb_top_250/blob/main/imdb_scraper.py), [*Review Penalizer*](https://github.com/comealone40k/DP-imdb_top_250/blob/main/imdb_top_250_adjustment.py#:~:text=def%20adjust_dataframe(,return%20sorted_df) & [*Oscar Calculator*](https://github.com/comealone40k/DP-imdb_top_250/blob/main/imdb_top_250_adjustment.py#:~:text=def%20oscars_adjustment(,return%201.5).
 - Show us your work through your commit history.
 - Completeness: did you complete the features? Are all the tests running?
 - Correctness: does the code act in a sensible, thought-out way?
