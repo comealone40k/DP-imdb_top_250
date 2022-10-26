@@ -5,6 +5,9 @@ import argparse
 import imdb_scraper
 import os
 import logging
+import config as c
+
+logging.basicConfig(format=c.log_format)
 
 
 def oscars_adjustment(p_num_of_oscars: int) -> float:
@@ -15,6 +18,8 @@ def oscars_adjustment(p_num_of_oscars: int) -> float:
     :return: float
         Adjustment value
     """
+    if p_num_of_oscars < 0:
+        raise Exception(f'The number of Oscars parameter is below zero ("{p_num_of_oscars}"). No movie is THAT bad.')
 
     if p_num_of_oscars == 0:
         return 0
@@ -29,24 +34,39 @@ def oscars_adjustment(p_num_of_oscars: int) -> float:
 
 
 def adjust_dataframe(p_df: pd.DataFrame, p_log_level: str = 'INFO'):
+
+    # Initiate logging for this function, pad function name to 30 characters
+    logger = logging.getLogger(__name__.ljust(30, ' '))
+    logger.setLevel(p_log_level)
+
+    logger.info('Started')
+
     # Get maximum amount of votes for all 250 movies
     l_max_votes = p_df.sort_values('rating', ascending=False).head(20).max(axis=0)['votes']
+
+    logger.info(f'Maximum number of votes in the set: {l_max_votes}')
 
     # Adjust rating - 0.1 penalty for each 100k deviation from l_max_votes and create new column with adjusted value
     p_df['review_penalty'] = ((l_max_votes - p_df['votes']) // 100000 * -0.1)
 
+    logger.info('Vote/Review penalties are calculated')
+
     # Adjust rating - apply oscars adjustment and create new column
     p_df['oscars_adjustment'] = [oscars_adjustment(x) for x in p_df['oscars']]
 
+    logger.info('Oscars adjustments are calculated')
+
     # Calculate final adjusted rating
     p_df['adjusted_rating'] = round(p_df['rating'] + p_df['review_penalty'] + p_df['oscars_adjustment'], 1)
+
+    logger.info('Final adjustments are calculated')
 
     # Drop adjustment column - no need for them now
     l_df = p_df.drop("oscars_adjustment", axis='columns')
     l_df = l_df.drop("review_penalty", axis='columns')
 
     # Sort movie list based on adjusted ratings, get top 20, reset index on DataFrame
-    sorted_df = l_df.sort_values('adjusted_rating', ascending=False).head(20).reindex().reset_index(drop=True)
+    sorted_df = l_df.sort_values('adjusted_rating', ascending=False).reindex().reset_index(drop=True)
 
     # New index starts at 1
     sorted_df.index += 1
@@ -54,6 +74,8 @@ def adjust_dataframe(p_df: pd.DataFrame, p_log_level: str = 'INFO'):
     sorted_df.insert(loc=0, column='rank', value=sorted_df.index)
 
     sorted_df['rank'] = sorted_df.index
+
+    logger.info('DataFrame adjustment is done.')
 
     return sorted_df
 

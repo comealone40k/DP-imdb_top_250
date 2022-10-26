@@ -33,44 +33,19 @@ def extract_number_of_oscars(p_soup: BeautifulSoup, p_log_level: str = 'INFO') -
     soup_oscars = p_soup.findAll("a",
                                  attrs={"class": "ipc-metadata-list-item__label ipc-metadata-list-item__label--link"})
 
+    if soup_oscars is None:
+        l_exc_msg = f'No data found while looking for application Oscars in soup:\n{p_soup}'
+        logger.error(l_exc_msg)
+        raise Exception(l_exc_msg)
+
     num_of_oscars = 0  # Default Oscars won is zero
-    for i in soup_oscars:  # If there is a section with relevant data, lopp through
+    for i in soup_oscars:  # If there is a section with relevant data, loop through
         if re.search('Won(.+?)Oscars', i.text):  # If section contains text like 'Won X Oscars'
             num_of_oscars = int(re.findall(r'\d+', i.text)[0])  # Extract integer of Oscars won
 
             logger.debug(f'Found Oscars: {num_of_oscars} in: {i.text}')
 
     return num_of_oscars
-
-
-def extract_number_of_reviews(p_content: bytes, p_log_level: str = 'INFO') -> int:
-    """
-    Extracts data from IMDB page content: "num_of_reviews"
-    :param p_content: str
-        Content of the page to extract from ( Html response )
-    :param p_log_level: str
-        Log level to logging
-    :return: int
-        Number of reviews for movie
-    """
-
-    # Initiate logging for this function, pad function name to 30 characters
-    logger = logging.getLogger(__name__.ljust(30, ' '))
-    logger.setLevel(p_log_level)
-
-    logger.info('Started')
-
-    logger.debug(f'Current content:\n{p_content}')
-
-    l_review_soup = BeautifulSoup(p_content, 'html.parser')
-
-    l_reviews_text = l_review_soup.find("div", attrs={"class": "lister"}).find('div').find('div').find('span').text
-
-    logger.debug(f'Review data found:\n{l_reviews_text}')
-
-    l_num_of_reviews = int(re.findall(r'\d+', l_reviews_text.replace(',', ''))[0])
-
-    return l_num_of_reviews
 
 
 def extract_imdb_json_from_content(p_soup: BeautifulSoup, p_log_level: str = 'INFO') -> dict:
@@ -90,11 +65,22 @@ def extract_imdb_json_from_content(p_soup: BeautifulSoup, p_log_level: str = 'IN
 
     logger.info('Started')
 
-    l_soup_data = p_soup.find("script", type="application/ld+json").text  # Extract script data from page content
+    l_soup_result = p_soup.find("script", type="application/ld+json")  # Extract script data from page content
+
+    if l_soup_result is None:
+        l_exc_msg = f'No data found while looking for application JSON in soup:\n{p_soup}'
+        logger.error(l_exc_msg)
+        raise Exception(l_exc_msg)
+
+    l_soup_data = l_soup_result.text
 
     logger.debug(f'Script data found:\n{l_soup_data}')
 
-    l_imdb_data = json.loads(l_soup_data)  # Parse script data into JSON object
+    try:
+        l_imdb_data = json.loads(l_soup_data)  # Parse script data into JSON object
+    except json.JSONDecodeError as jde:
+        logger.error(f'Parsing JSON data failed with the following error:\n{jde}')
+        raise jde
 
     logger.debug(f'Data extracted from content:\n{l_imdb_data}')
 
@@ -119,22 +105,29 @@ def extract_imdb_data_from_json(p_json: dict, p_log_level: str = 'INFO') -> list
 
     logger.info('Started')
 
-    # Movie names might contains html escape sequences
-    # Must unescape them to get the actual name
-    l_movie_name = html.unescape(p_json['name'])
-
-    # There are some very rare cases, where date of release is not present
-    # due to the movie being release before relevant info was recorded
     try:
-        release_date = p_json['datePublished']  # Try getting datePublished field from movie data
-    except KeyError as ke:  # in case there is no such field
-        logger.warning(f'Publish date was not found for: {l_movie_name}')  # Log a warning and set release date as "N/A"
-        release_date = 'N/A'
+        # Movie names might contains html escape sequences
+        # Must unescape them to get the actual name
+        l_movie_name = html.unescape(p_json['name'])
 
-    l_return = [l_movie_name,
-                release_date,
-                p_json['aggregateRating']['ratingValue'],
-                p_json['aggregateRating']['ratingCount']]
+        # There are some very rare cases, where date of release is not present
+        # due to the movie being release before relevant info was recorded
+        try:
+            release_date = p_json['datePublished']  # Try getting datePublished field from movie data
+        except KeyError as ke:  # in case there is no such field
+            logger.warning(
+                f'Publish date was not found for: {l_movie_name}')  # Log a warning and set release date as "N/A"
+            release_date = 'N/A'
+
+        l_return = [l_movie_name,
+                    release_date,
+                    p_json['aggregateRating']['ratingValue'],
+                    p_json['aggregateRating']['ratingCount']]
+
+    except KeyError as ke:
+        l_exc_msg = f'Field not found in JSON: {ke}, JSON data:\n{p_json}'
+        logger.error(l_exc_msg)
+        raise KeyError(l_exc_msg)
 
     logger.info(f'Finished, Extracted data: {l_return}')
 
@@ -199,17 +192,41 @@ def extract_imdb_top_250_data(p_log_level: str = 'INFO') -> pd.DataFrame:
 
     logger.debug(f'Starting on URL: {l_top_250_url}')
 
-    soup = BeautifulSoup(requests.get(l_top_250_url).text, "html.parser")  # Parse top 250 url
+    try:
+        l_req_result = requests.get(l_top_250_url)
+    except requests.ConnectionError as ce:
+        l_exc_msg = f'Connection error occured while trying to reach "{l_top_250_url}":\n{ce}'
+        logger.error(l_exc_msg)
+        raise ce
+
+    soup = BeautifulSoup(l_req_result.text, "html.parser")  # Parse top 250 url
 
     l_title_list_soup = soup.find('script', type="application/ld+json").text  # Find movie link list in script tag
 
-    l_title_json = json.loads(l_title_list_soup)  # Parse link list into JSON object
+    if l_title_list_soup is None:
+        l_msg = f'No application data was found in soup:\n{l_title_list_soup}'
+        logger.error(l_msg)
+        raise Exception(l_msg)
 
-    l_title_list = l_title_json['about']['itemListElement']  # Get links from JSON
+    try:
+        l_title_json = json.loads(l_title_list_soup)  # Parse link list into JSON object
+    except json.JSONDecodeError as jde:
+        logger.error(f'Parsing JSON data failed with the following error:\n{jde}')
+        raise jde
 
-    filtered = list(filter(lambda pos: int(pos['position']) <= 20, l_title_list))  # Filter on position ( 20 or less )
+    try:
 
-    link_list = [x['url'] for x in filtered]  # Extract url from link list
+        l_title_list = l_title_json['about']['itemListElement']  # Get links from JSON
+
+        # Filter on position ( 20 or less )
+        filtered = list(filter(lambda pos: int(pos['position']) <= 20, l_title_list))
+
+        link_list = [x['url'] for x in filtered]  # Extract url from link list
+
+    except KeyError as ke:
+        l_exc_msg = f'Field not found in JSON: {ke}, JSON data:\n{l_title_json}'
+        logger.error(l_exc_msg)
+        raise KeyError(l_exc_msg)
 
     imdb_top_250_data = []  # List to gather top 250 movie data into
 
@@ -219,7 +236,12 @@ def extract_imdb_top_250_data(p_log_level: str = 'INFO') -> pd.DataFrame:
 
         logger.debug(f'Extracting data from URL:{l_current_link}')
 
-        l_content = requests.get(l_current_link).content  # Extract content from movie url as bytes
+        try:
+            l_content = requests.get(l_current_link).content  # Extract content from movie url as bytes
+        except requests.ConnectionError as ce:
+            l_exc_msg = f'Connection error occured while trying to reach "{l_current_link}":\n{ce}'
+            logger.error(l_exc_msg)
+            raise ce
 
         logger.debug(f'Extracting bytes content from URL:{l_content}')
 
